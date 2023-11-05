@@ -1,0 +1,65 @@
+#include <bits/stdc++.h> // Include the standard C++ libraries (use with caution)
+
+using namespace std; // Use the standard namespace for easier access to standard library functions
+
+// A Huffman tree node
+struct MinHeapNode {
+    char data; // The character stored in the node
+    unsigned freq; // Frequency of the character
+    MinHeapNode* left; // Pointer to the left child node
+    MinHeapNode* right; // Pointer to the right child node
+
+    MinHeapNode(char data, unsigned freq) : data(data), freq(freq), left(nullptr), right(nullptr) {} // Constructor for a node
+};
+
+// Comparison for min-heap
+struct Compare {
+    bool operator()(MinHeapNode* left, MinHeapNode* right) { // Custom comparison function for the priority queue
+        return left->freq > right->freq; // Compare nodes based on frequency
+    }
+};
+
+// Function to print Huffman codes
+void printCodes(MinHeapNode* root, string str) {
+    if (!root)
+        return;
+
+    if (root->data != '$') // Check if the node contains a character
+        cout << root->data << ": " << str << "\n"; // Print character and its Huffman code
+
+    printCodes(root->left, str + "0"); // Recursively process the left subtree
+    printCodes(root->right, str + "1"); // Recursively process the right subtree
+}
+
+// Build Huffman Tree and print Huffman Codes
+void HuffmanCodes(char data[], int freq[], int size) {
+    priority_queue<MinHeapNode*, vector<MinHeapNode*>, Compare> minHeap; // Create a priority queue (min-heap)
+
+    for (int i = 0; i < size; ++i)
+        minHeap.push(new MinHeapNode(data[i], freq[i])); // Add each character and its frequency to the min-heap
+
+    while (minHeap.size() != 1) { // Build the Huffman tree
+        MinHeapNode* left = minHeap.top(); // Get the node with the lowest frequency
+        minHeap.pop();
+        MinHeapNode* right = minHeap.top(); // Get the node with the second lowest frequency
+        minHeap.pop();
+
+        MinHeapNode* top = new MinHeapNode('$', left->freq + right->freq); // Create a new internal node with a special character '$' and the sum of frequencies
+        top->left = left; // Make the left node the left child of the internal node
+        top->right = right; // Make the right node the right child of the internal node
+
+        minHeap.push(top); // Add the internal node back to the min-heap
+    }
+
+    printCodes(minHeap.top(), ""); // Print the Huffman codes
+}
+
+int main() {
+    char arr[] = { 'a', 'b', 'c', 'd', 'e', 'f' }; // Characters
+    int freq[] = { 5, 9, 12, 13, 16, 45 }; // Corresponding frequencies
+    int size = sizeof(arr) / sizeof(arr[0]); // Calculate the size of the character array
+
+    HuffmanCodes(arr, freq, size); // Generate and print Huffman codes
+
+    return 0; // Return 0 to indicate successful program execution
+}
